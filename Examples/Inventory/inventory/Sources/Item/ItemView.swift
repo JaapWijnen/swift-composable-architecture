@@ -33,7 +33,7 @@ public struct ItemView: View {
                     text: viewStore.binding(
                         get: \.name,
                         send: Item.Action.setName
-                    )
+                    ).removeDuplicates()
                 )
 
                 Picker(
@@ -110,6 +110,18 @@ struct OutOfStockView: View {
             }
             .transition(.opacity)
         }
+    }
+}
+
+extension Binding where Value: Equatable {
+    func removeDuplicates() -> Self {
+        .init(
+            get: { self.wrappedValue },
+            set: { newValue, transaction in
+                guard newValue != self.wrappedValue else { return }
+                self.transaction(transaction).wrappedValue = newValue
+            }
+        )
     }
 }
 
