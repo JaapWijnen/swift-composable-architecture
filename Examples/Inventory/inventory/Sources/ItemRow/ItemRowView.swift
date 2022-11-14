@@ -42,17 +42,20 @@ public struct ItemRowView: View {
             ) { isActive in
                 viewStore.send(.setEditNavigation(isActive: isActive))
             } destination: { _ in
-                IfLetStore(store.scope(state: \.route)) { routedStore in
+                IfLetStore(store.scope(
+                    state: \.route,
+                    action: ItemRow.Action.route
+                )) { routedStore in
                     SwitchStore(routedStore) {
                         ComposableArchitecture.CaseLet<
                             ItemRow.Route,
-                            ItemRow.Action,
+                            ItemRow.Action.RouteAction,
                             Item.State,
                             Item.Action,
                             _
                         >(
                             state: /ItemRow.Route.edit,
-                            action: ItemRow.Action.editItem
+                            action: ItemRow.Action.RouteAction.editItem
                         ) { itemStore in
                             ItemView(store: itemStore)
                         }
@@ -63,7 +66,7 @@ public struct ItemRowView: View {
                     HStack {
                         VStack(alignment: .leading) {
                             Text(viewStore.name)
-                            
+
                             switch viewStore.status {
                             case let .inStock(quantity):
                                 Text("In stock: \(quantity)")
@@ -71,21 +74,21 @@ public struct ItemRowView: View {
                                 Text("Out of stock\(isOnBackOrder ? ": on back order" : "")")
                             }
                         }
-                        
+
                         Spacer()
-                        
+
                         if let color = viewStore.color {
                             Rectangle()
                                 .frame(width: 30, height: 30)
                                 .foregroundColor(color.swiftUIColor)
                                 .border(Color.black, width: 1)
                         }
-                        
+
                         Button(action: { viewStore.send(.duplicateButtonTapped) }) {
                             Image(systemName: "square.fill.on.square.fill")
                         }
                         .padding(.leading)
-                        
+
                         Button(action: { viewStore.send(.deleteButtonTapped) }) {
                             Image(systemName: "trash.fill")
                         }
@@ -115,17 +118,20 @@ public struct ItemRowView: View {
                         case: /ItemRow.Route.duplicate
                     ) { _ in
                         NavigationView {
-                            IfLetStore(store.scope(state: \.route)) { routedStore in
+                            IfLetStore(store.scope(
+                                state: \.route,
+                                action: ItemRow.Action.route
+                            )) { routedStore in
                                 SwitchStore(routedStore) {
                                     ComposableArchitecture.CaseLet<
                                         ItemRow.Route,
-                                        ItemRow.Action,
+                                        ItemRow.Action.RouteAction,
                                         Item.State,
                                         Item.Action,
                                         _
                                     >(
                                         state: /ItemRow.Route.duplicate,
-                                        action: ItemRow.Action.duplicateItem
+                                        action: ItemRow.Action.RouteAction.duplicateItem
                                     ) { duplicateItemStore in
                                         ItemView(store: duplicateItemStore)
                                             .navigationBarTitle("Duplicate")

@@ -31,9 +31,8 @@ public struct ItemRow: ReducerProtocol {
         case edit(Item.State)
     }
     
-    public enum Action {
-        case editItem(Item.Action)
-        case duplicateItem(Item.Action)
+    public enum Action: Equatable {
+        case route(RouteAction)
         case setRoute(Route?)
         case setEditNavigation(isActive: Bool)
         case duplicateButtonTapped
@@ -43,18 +42,23 @@ public struct ItemRow: ReducerProtocol {
         case cancelDuplicateButtonTapped
         
         case doNothing
+        
+        public enum RouteAction: Equatable {
+            case editItem(Item.Action)
+            case duplicateItem(Item.Action)
+        }
     }
     
     public init() { }
     
     public var body: some ReducerProtocolOf<ItemRow> {
         _ItemRow()
-            .ifLet(\.route, action: /.self) {
+            .ifLet(\.route, action: /Action.route) {
                 EmptyReducer()
-                    .ifCaseLet(/Route.duplicate, action: /Action.duplicateItem) {
+                    .ifCaseLet(/Route.duplicate, action: /Action.RouteAction.duplicateItem) {
                         Item()
                     }
-                    .ifCaseLet(/Route.edit, action: /Action.editItem) {
+                    .ifCaseLet(/Route.edit, action: /Action.RouteAction.editItem) {
                         Item()
                     }
             }
@@ -67,10 +71,10 @@ struct _ItemRow: ReducerProtocol {
     
     func reduce(into state: inout State, action: Action) -> Effect<Action, Never> {
         switch action {
-        case .editItem:
+        case .route(.editItem):
             return .none
             
-        case .duplicateItem:
+        case .route(.duplicateItem):
             return .none
             
         case .setRoute(let newRoute):

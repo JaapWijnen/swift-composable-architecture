@@ -28,7 +28,6 @@ public struct InventoryFeatureView: View {
     
     public var body: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-
             List {
                 ForEachStore(store.scope(
                     state: \.items,
@@ -49,17 +48,20 @@ public struct InventoryFeatureView: View {
                 ),
                 case: /InventoryFeature.Route.add
             ) { _ in
-                IfLetStore(store.scope(state: \.route)) { routedStore in
+                IfLetStore(store.scope(
+                    state: \.route,
+                    action: InventoryFeature.Action.route
+                )) { routedStore in
                     SwitchStore(routedStore) {
                         ComposableArchitecture.CaseLet<
                             InventoryFeature.Route,
-                            InventoryFeature.Action,
+                            InventoryFeature.Action.RouteAction,
                             Item.State,
                             Item.Action,
                             NavigationView
                         >(
                             state: /InventoryFeature.Route.add,
-                            action: InventoryFeature.Action.addItem
+                            action: InventoryFeature.Action.RouteAction.addItem
                         ) { addItemStore in
                             NavigationView {
                                 ItemView(store: addItemStore)
@@ -73,7 +75,6 @@ public struct InventoryFeatureView: View {
                                         ToolbarItem(placement: .primaryAction) {
                                             Button("Save") {
                                                 viewStore.send(.saveButtonTapped)
-                                                //self.viewModel.add(item: itemToAdd)
                                             }
                                         }
                                     }

@@ -29,22 +29,27 @@ public struct InventoryFeature: ReducerProtocol {
         case row(id: ItemRow.State.ID, route: ItemRow.Route)
     }
     
-    public enum Action {
+    public enum Action: Equatable {
         case itemRow(ItemRow.State.ID, ItemRow.Action)
-        case addItem(Item.Action)
+        case route(RouteAction)
         case setRoute(Route?)
         case addButtonTapped
         case cancelButtonTapped
         case saveButtonTapped
+        
+        public enum RouteAction: Equatable {
+            case addItem(Item.Action)
+        }
     }
+    
     
     public init() { }
     
     public var body: some ReducerProtocolOf<InventoryFeature> {
         _InventoryFeature()
-            .ifLet(\.route, action: /.self) {
+            .ifLet(\.route, action: /Action.route) {
                 EmptyReducer()
-                    .ifCaseLet(/Route.add, action: /Action.addItem) {
+                    .ifCaseLet(/Route.add, action: /Action.RouteAction.addItem) {
                         Item()
                     }
             }
@@ -75,7 +80,7 @@ struct _InventoryFeature: ReducerProtocol {
         case .itemRow:
             return .none
             
-        case .addItem:
+        case .route(.addItem):
             return .none
             
         case .setRoute(let newRoute):

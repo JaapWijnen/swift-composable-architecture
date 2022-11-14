@@ -69,7 +69,7 @@ public struct Item: ReducerProtocol {
         }
     }
     
-    public enum Action {
+    public enum Action: Equatable {
         case setName(String)
         case setQuantity(Int)
         case setColor(Color?)

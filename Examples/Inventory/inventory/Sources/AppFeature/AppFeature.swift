@@ -26,7 +26,7 @@ public struct AppFeature: ReducerProtocol {
         case inventory
     }
     
-    public enum Action {
+    public enum Action: Equatable {
         case inventory(InventoryFeature.Action)
         case setTab(Tab)
     }
